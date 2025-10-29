@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useDark } from '@vueuse/core'
+import { useDark, useLocalStorage } from '@vueuse/core'
 import dayjs from 'dayjs'
 import { last } from 'lodash'
 import { computed, ref } from 'vue'
@@ -21,7 +21,13 @@ useDark({
 
 const intervalOnClock = ref(0)
 
-const sections = ref<WorkSection[]>([])
+const sections = useLocalStorage<WorkSection[]>('work-sections', [], {
+  serializer: {
+    read: WorkSection.deserializeSectionsFromString,
+    write: WorkSection.serializeSectionsToString,
+  },
+})
+
 const onClock = computed(() => {
   intervalOnClock.value.toString()
   return last(sections.value)?.takeIfActive()?.duration()
@@ -44,7 +50,8 @@ function clockIn() {
 function clockOut() {
   const clockedIn = last(sections.value)?.takeIfActive()
   if (!clockedIn) return
-  clockedIn.end = dayjs()
+  clockedIn.start = clockedIn.start.second(0).millisecond(0)
+  clockedIn.end = dayjs().second(0).millisecond(0)
 }
 </script>
 

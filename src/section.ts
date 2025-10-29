@@ -13,15 +13,29 @@ export enum EditingSection {
   DESCRIPTION,
 }
 
+export type SerializedWorkSection = {
+  start: string
+  end?: string
+  description: string
+}
+
 export class WorkSection {
   start: Dayjs
   end?: Dayjs
   description: string
   editing: EditingSection
 
-  constructor(start?: dayjs.ConfigType) {
-    this.start = dayjs(start)
-    this.description = ''
+  constructor(data?: SerializedWorkSection) {
+    if (data) {
+      this.start = dayjs(data.start)
+      if (data.end) {
+        this.end = dayjs(data.end)
+      }
+      this.description = data.description
+    } else {
+      this.start = dayjs()
+      this.description = ''
+    }
     this.editing = EditingSection.NONE
   }
 
@@ -31,6 +45,22 @@ export class WorkSection {
 
   takeIfActive() {
     return !this.end ? this : null
+  }
+
+  serialize(): SerializedWorkSection {
+    return {
+      start: this.start.toISOString(),
+      end: this.end?.toISOString(),
+      description: this.description,
+    }
+  }
+
+  static serializeSectionsToString(sections: WorkSection[]) {
+    return JSON.stringify(sections.map((x) => x.serialize()))
+  }
+
+  static deserializeSectionsFromString(data: string) {
+    return (JSON.parse(data) as SerializedWorkSection[]).map((x) => new WorkSection(x))
   }
 }
 
