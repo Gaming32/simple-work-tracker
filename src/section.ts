@@ -1,5 +1,10 @@
 import dayjs from 'dayjs'
 import type { Dayjs } from 'dayjs'
+import type { InputTypeHTMLAttribute } from 'vue'
+
+export const TIME_FORMAT = 'h:mm A'
+export const DURATION_FORMAT = 'H:mm'
+export const DETAILED_DURATION_FORMAT = 'H:mm:ss'
 
 export enum EditingSection {
   NONE,
@@ -15,17 +20,13 @@ export class WorkSection {
   editing: EditingSection
 
   constructor(start?: dayjs.ConfigType) {
-    this.start = dayjs(start)
+    this.start = dayjs(start).second(0).millisecond(0)
     this.description = ''
     this.editing = EditingSection.NONE
   }
 
-  durationMinutes() {
-    return (this.end ?? dayjs()).diff(this.start, 'minutes')
-  }
-
-  durationSeconds() {
-    return (this.end ?? dayjs()).diff(this.start, 'seconds')
+  duration() {
+    return dayjs.duration((this.end ?? dayjs()).diff(this.start))
   }
 
   takeIfActive() {
@@ -33,14 +34,20 @@ export class WorkSection {
   }
 }
 
-export function pad2(x: number) {
-  return Math.floor(x).toString().padStart(2, '0')
+export type EditableSectionType<V> = {
+  valueToString: (value: V) => string
+  valueFromString: (string: string) => V
+  inputType: InputTypeHTMLAttribute
 }
 
-export function formatMinutes(minutes: number) {
-  return `${Math.floor(minutes / 60)}:${pad2(minutes % 60)}`
+export const TIME_SECTION_TYPE: EditableSectionType<Dayjs> = {
+  valueToString: (v) => v.format('HH:mm'),
+  valueFromString: (s) => dayjs(s, 'HH:mm'),
+  inputType: 'time',
 }
 
-export function formatSeconds(seconds: number) {
-  return `${Math.floor(seconds / 3600)}:${pad2((seconds / 60) % 60)}:${pad2(seconds % 60)}`
+export const TEXT_SECTION_TYPE: EditableSectionType<string> = {
+  valueToString: (v) => v,
+  valueFromString: (s) => s,
+  inputType: 'text',
 }
