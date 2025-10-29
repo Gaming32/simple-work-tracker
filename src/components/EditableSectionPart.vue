@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts" generic="F extends keyof WorkSection">
 import { EditingSection, WorkSection, type EditableSectionType } from '@/section'
-import { ref } from 'vue'
+import { nextTick, ref, useTemplateRef } from 'vue'
 
 const props = defineProps<{
   section: WorkSection
@@ -11,8 +11,9 @@ const props = defineProps<{
 }>()
 
 const newValue = ref('')
+const inputBox = useTemplateRef('inputBox')
 
-function startEdit() {
+async function startEdit() {
   const oldValue = props.section[props.field]
   if (oldValue === undefined) {
     console.error('startEdit called when oldValue was undefined')
@@ -20,6 +21,8 @@ function startEdit() {
   }
   newValue.value = props.inputType.valueToString(oldValue)
   props.section.editing = props.editing
+  await nextTick()
+  inputBox.value!.focus()
 }
 
 function endEdit() {
@@ -39,6 +42,7 @@ function forceEndEdit() {
   </div>
   <div v-else class="gapped-controls">
     <input
+      ref="inputBox"
       :type="inputType.inputType"
       class="wa-size-s small-input"
       v-model="newValue"

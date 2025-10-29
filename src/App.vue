@@ -52,58 +52,64 @@ function clockOut() {
   <h1>Simple work tracker</h1>
 
   <div class="app-body">
-    <h3>Total worked: {{ totalWorked.format(DURATION_FORMAT) }}</h3>
+    <div>Total worked: {{ totalWorked.format(DURATION_FORMAT) }}</div>
     <button v-if="onClock === undefined" class="wa-success" @click="clockIn">Clock in</button>
     <template v-else>
-      <h3>Clocked in: {{ onClock.format(DETAILED_DURATION_FORMAT) }}</h3>
+      <div>Clocked in: {{ onClock.format(DETAILED_DURATION_FORMAT) }}</div>
       <button class="wa-danger" @click="clockOut">Clock out</button>
     </template>
-    <table class="inline-table wa-hover-rows wa-zebra-rows">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Start time</th>
-          <th>End time</th>
-          <th>Duration</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(section, index) in sections" :key="index">
-          <td><a class="icon-button">❌</a></td>
-          <td>
-            <EditableSectionPart
-              :section="section"
-              field="start"
-              :editing="EditingSection.START"
-              :value-from-string="dayjs"
-              :input-type="TIME_SECTION_TYPE"
-              >{{ section.start.format(TIME_FORMAT) }}</EditableSectionPart
-            >
-          </td>
-          <td>
-            <EditableSectionPart
-              :section="section"
-              field="end"
-              :editing="EditingSection.END"
-              :value-from-string="dayjs"
-              :input-type="TIME_SECTION_TYPE"
-              >{{ section.end?.format(TIME_FORMAT) ?? 'Now' }}</EditableSectionPart
-            >
-          </td>
-          <td>{{ section.duration().format(DURATION_FORMAT) }}</td>
-          <td>
-            <EditableSectionPart
-              :section="section"
-              field="description"
-              :editing="EditingSection.DESCRIPTION"
-              :input-type="TEXT_SECTION_TYPE"
-              >{{ section.description }}</EditableSectionPart
-            >
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <template v-if="sections.length">
+      <table class="inline-table wa-hover-rows wa-zebra-rows">
+        <thead>
+          <tr>
+            <th class="centered-horizontally">
+              <a class="icon-button" @click="sections = []">❌</a>
+            </th>
+            <th>Start time</th>
+            <th>End time</th>
+            <th>Duration</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(section, index) in sections" :key="index">
+            <td class="centered-horizontally">
+              <a class="icon-button" @click="sections.splice(index, 1)">❌</a>
+            </td>
+            <td>
+              <EditableSectionPart
+                :section="section"
+                field="start"
+                :editing="EditingSection.START"
+                :value-from-string="dayjs"
+                :input-type="TIME_SECTION_TYPE"
+                >{{ section.start.format(TIME_FORMAT) }}</EditableSectionPart
+              >
+            </td>
+            <td>
+              <EditableSectionPart
+                :section="section"
+                field="end"
+                :editing="EditingSection.END"
+                :value-from-string="dayjs"
+                :input-type="TIME_SECTION_TYPE"
+                >{{ section.end?.format(TIME_FORMAT) ?? 'Now' }}</EditableSectionPart
+              >
+            </td>
+            <td>{{ section.duration().format(DURATION_FORMAT) }}</td>
+            <td>
+              <EditableSectionPart
+                :section="section"
+                field="description"
+                :editing="EditingSection.DESCRIPTION"
+                :input-type="TEXT_SECTION_TYPE"
+                >{{ section.description }}</EditableSectionPart
+              >
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </template>
   </div>
 
   <RepoFooter />
@@ -112,5 +118,9 @@ function clockOut() {
 <style scoped>
 .inline-table {
   display: inline-block;
+}
+
+.centered-horizontally {
+  text-align: center;
 }
 </style>
