@@ -45,7 +45,13 @@ function forceEndEdit() {
       @keyup.enter="endEdit"
       @keyup.escape="forceEndEdit"
     />
-    <button class="wa-size-s wa-success" @click="endEdit">Save</button>
+    <button
+      class="wa-size-s wa-success"
+      :disabled="!inputType.validateString(newValue)"
+      @click="endEdit"
+    >
+      Save
+    </button>
     <button class="wa-size-s wa-danger" @click="forceEndEdit">Cancel</button>
   </div>
 </template>

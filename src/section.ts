@@ -20,7 +20,7 @@ export class WorkSection {
   editing: EditingSection
 
   constructor(start?: dayjs.ConfigType) {
-    this.start = dayjs(start).second(0).millisecond(0)
+    this.start = dayjs(start)
     this.description = ''
     this.editing = EditingSection.NONE
   }
@@ -36,18 +36,21 @@ export class WorkSection {
 
 export type EditableSectionType<V> = {
   valueToString: (value: V) => string
+  validateString: (string: string) => boolean
   valueFromString: (string: string) => V
   inputType: InputTypeHTMLAttribute
 }
 
 export const TIME_SECTION_TYPE: EditableSectionType<Dayjs> = {
   valueToString: (v) => v.format('HH:mm'),
+  validateString: (s) => dayjs(s, 'HH:mm').isBefore(dayjs()),
   valueFromString: (s) => dayjs(s, 'HH:mm'),
   inputType: 'time',
 }
 
 export const TEXT_SECTION_TYPE: EditableSectionType<string> = {
   valueToString: (v) => v,
+  validateString: () => true,
   valueFromString: (s) => s,
   inputType: 'text',
 }
